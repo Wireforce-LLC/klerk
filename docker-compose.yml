@@ -5,6 +5,8 @@ services:
     image: mongo:6-jammy
     volumes:
       - ./data:/data/db
+    ports:
+      - 12701:12701
 
   klerk:
     build: .
