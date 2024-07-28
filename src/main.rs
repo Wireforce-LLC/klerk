@@ -730,7 +730,10 @@ async fn main() -> std::io::Result<()> {
     application
   });
 
-  let address = ("127.0.0.1", 12701);
+  let address = (
+    std::env::var("HOST").unwrap_or("127.0.0.1".to_string()),
+    std::env::var("PORT").unwrap_or("12701".to_string()).parse::<u16>().unwrap()
+  );
 
   // let key = auth::create_application_token(
   //   ApplicationAuth {
