@@ -3,5 +3,5 @@ version: '3'
 services:
   klerk:
     build: .
-  volumes:
-    - .env:./.env
+    volumes:
+      - .env:./.env
