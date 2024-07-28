@@ -5,8 +5,6 @@ services:
     image: mongo:6-jammy
     volumes:
       - ./data:/data/db
-    ports:
-      - 0.0.0.0:12701:12701
 
   klerk:
     build: .
@@ -15,3 +13,7 @@ services:
       - .env:/app/.env
     environment:
       MONGODB_URI: mongodb://mongodb:27017
+      HOST: 0.0.0.0
+      PORT: 12701
+    ports:
+      - 0.0.0.0:12701:12701
