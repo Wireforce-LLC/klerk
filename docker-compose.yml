@@ -11,3 +11,5 @@ services:
     volumes:
       - .env:/app/target/release/.env
       - .env:/app/.env
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017
