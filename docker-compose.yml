@@ -6,7 +6,7 @@ services:
     volumes:
       - ./data:/data/db
     ports:
-      - 12701:12701
+      - 0.0.0.0:12701:12701
 
   klerk:
     build: .
