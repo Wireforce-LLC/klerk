@@ -4,4 +4,5 @@ services:
   klerk:
     build: .
     volumes:
-      - .env:./.env
+      - .env:/app/target/release/.env
+      - .env:/app/.env
