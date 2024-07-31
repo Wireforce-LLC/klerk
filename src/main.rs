@@ -236,7 +236,10 @@ async fn create_application(req: HttpRequest, req_data: web::Json<CreateApplicat
   let application_id = Uuid::new_v4();
    
   if token.is_none() {
-    return HttpResponse::Unauthorized().body("");
+    return HttpResponse::Unauthorized().json(json!({
+      "error": "Unauthorized",
+      "message": "Invalid token."
+    }))
   }
 
   if !req_data.permissions.iter().all(|x| PERMISSION.contains_key(x)) {
@@ -358,6 +361,14 @@ async fn write_data(req: HttpRequest, req_data: web::Json<HashMap<String, Value>
 #[get("/data/{id}")]
 async fn read_data(req: HttpRequest, document_id: web::Path<String>) -> impl Responder {
   let token = auth::get_jwt_application_token(req);
+ 
+  if token.is_none() {
+    return HttpResponse::Unauthorized().json(json!({
+      "error": "Unauthorized",
+      "message": "Invalid token. Please use JWT token for application, not your admin token"
+    }));
+  }
+
   let database = DATABASE_CLIENT
     .lock()
     .unwrap();
@@ -434,6 +445,14 @@ async fn read_data(req: HttpRequest, document_id: web::Path<String>) -> impl Res
 #[delete("/data/{id}")]
 async fn delete_data(req: HttpRequest, document_id: web::Path<String>) -> impl Responder {
   let token = auth::get_jwt_application_token(req);
+  
+  if token.is_none() {
+    return HttpResponse::Unauthorized().json(json!({
+      "error": "Unauthorized",
+      "message": "Invalid token. Please use JWT token for application, not your admin token"
+    }));
+  }
+
   let document_id = document_id.to_string();
 
   if Uuid::try_parse(&document_id).is_err() {
@@ -513,6 +532,14 @@ async fn delete_data(req: HttpRequest, document_id: web::Path<String>) -> impl R
 #[put("/data/{id}")]
 async fn update_data(req: HttpRequest, document_id: web::Path<String>, req_data: web::Json<Document>) -> impl Responder {
   let token = auth::get_jwt_application_token(req);
+  
+  if token.is_none() {
+    return HttpResponse::Unauthorized().json(json!({
+      "error": "Unauthorized",
+      "message": "Invalid token. Please use JWT token for application, not your admin token"
+    }));
+  }
+  
   let document_id = document_id.to_string();
 
   if Uuid::try_parse(&document_id).is_err() {
