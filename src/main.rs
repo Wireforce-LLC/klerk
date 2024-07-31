@@ -140,6 +140,52 @@ async fn realtime_emitter(req: HttpRequest, stream: web::Payload) -> Result<Http
   resp
 }
 
+
+#[get("/application/{application_id}/preview")]
+async fn get_application_preview(req: HttpRequest, application_id: web::Path<String>) -> impl Responder {
+  let token = auth::get_bearer_token(req);
+
+  if token.is_none() {
+    return HttpResponse::Unauthorized().body("");
+  }
+
+  let database = DATABASE_CLIENT
+    .lock()
+    .unwrap();
+  
+  let database = database.as_ref();
+  let database = database.unwrap();
+
+  let document_id = application_id.to_string();
+
+  let data = database
+    .database("klerk")
+    .collection::<InsertedData>("data")
+    .find(doc! {
+      "application_id": document_id
+    })
+    .skip(0)
+    .sort(doc! {
+      "time": -1
+    })
+    .await;
+
+  if data.is_err() {
+    return HttpResponse::Unauthorized().body("");
+  }
+
+  let mut data = data.unwrap();
+  let mut pipe = vec![];
+
+  while data.advance().await.unwrap() {
+    let document = data.current();
+    
+    pipe.push(document.to_owned());
+  }
+
+  return HttpResponse::Ok().json(pipe);
+}
+
 #[get("/applications")]
 async fn get_applications(req: HttpRequest) -> impl Responder {
   let token = auth::get_bearer_token(req);
@@ -750,6 +796,7 @@ async fn main() -> std::io::Result<()> {
       .service(write_data)
       .service(delete_data)
       .service(update_data)
+      .service(get_application_preview)
       .service(get_applications)
       .service(delete_application)
       .service(create_application);
