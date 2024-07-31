@@ -2,12 +2,14 @@ version: '3'
 
 services:
   mongodb:
+    restart: always
     image: mongo:6-jammy
     volumes:
       - ./data:/data/db
 
   klerk:
     build: .
+    restart: always
     volumes:
       - .env:/app/target/release/.env
       - .env:/app/.env
